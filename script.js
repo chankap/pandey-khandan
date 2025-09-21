@@ -60,18 +60,55 @@ const root = d3.hierarchy(treeData);
 const treeLayout = d3.tree().nodeSize([120, 150]);
 treeLayout(root);
 
-// Links (father → siblings → children)
-svg.selectAll(".link")
-  .data(root.links())
-  .enter()
-  .append("path")
-  .attr("class", "link")
-  .attr("d", d3.linkVertical()
-    .x(d => d.x)
-    .y(d => d.y)
-  );
+// --- Draw sibling connector + vertical father line ---
+function drawLinks() {
+  svg.selectAll(".link").remove();
 
-// Nodes
+  root.descendants().forEach(d => {
+    if (d.children && d.children.length > 0) {
+      // Horizontal sibling bar
+      const minX = d3.min(d.children, c => c.x);
+      const maxX = d3.max(d.children, c => c.x);
+      const y = d.children[0].y - 50; // a bit above children
+
+      svg.append("line")
+        .attr("class", "link")
+        .attr("x1", minX)
+        .attr("y1", y)
+        .attr("x2", maxX)
+        .attr("y2", y)
+        .attr("stroke", "#9ca3af")
+        .attr("stroke-width", 2);
+
+      // Vertical line to father
+      const fatherX = d.x;
+      const fatherY = d.y;
+      const barY = y;
+      svg.append("line")
+        .attr("class", "link")
+        .attr("x1", fatherX)
+        .attr("y1", fatherY)
+        .attr("x2", fatherX)
+        .attr("y2", barY)
+        .attr("stroke", "#9ca3af")
+        .attr("stroke-width", 2);
+
+      // Vertical lines to each child
+      d.children.forEach(c => {
+        svg.append("line")
+          .attr("class", "link")
+          .attr("x1", c.x)
+          .attr("y1", y)
+          .attr("x2", c.x)
+          .attr("y2", c.y - 35) // circle radius
+          .attr("stroke", "#9ca3af")
+          .attr("stroke-width", 2);
+      });
+    }
+  });
+}
+
+// --- Nodes ---
 const node = svg.selectAll(".node")
   .data(root.descendants())
   .enter()
@@ -91,7 +128,7 @@ node.append("circle")
   .attr("stroke", "#333")
   .attr("stroke-width", 2);
 
-// Image inside circle (male/female based on name)
+// Avatar image
 node.append("image")
   .attr("xlink:href", d => {
     const name = d.data.name.toLowerCase();
@@ -110,7 +147,7 @@ node.append("text")
   .attr("dy", 45)
   .text(d => d.data.name);
 
-// --- Drag functions ---
+// --- Drag Functions ---
 function dragStarted(event, d) {
   d3.select(this).raise().classed("active", true);
 }
@@ -119,14 +156,12 @@ function dragged(event, d) {
   d.x = event.x;
   d.y = event.y;
   d3.select(this).attr("transform", `translate(${d.x},${d.y})`);
-  // Update all links dynamically
-  svg.selectAll(".link")
-    .attr("d", d3.linkVertical()
-      .x(d => d.x)
-      .y(d => d.y)
-    );
+  drawLinks(); // Update lines dynamically
 }
 
 function dragEnded(event, d) {
   d3.select(this).classed("active", false);
 }
+
+// --- Initial draw of lines ---
+drawLinks();
