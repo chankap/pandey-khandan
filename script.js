@@ -1,4 +1,4 @@
-const family = {
+const treeData = {
   name: "Parag Pandey",
   children: [
     {
@@ -7,7 +7,9 @@ const family = {
         {
           name: "Balkeshwar Pandey",
           children: [
-            { name: "Vijay Kumar Pandey" },
+            {
+              name: "Vijay Kumar Pandey"
+            },
             {
               name: "Nand Kumar Pandey",
               children: [
@@ -34,8 +36,12 @@ const family = {
                 }
               ]
             },
-            { name: "Nagendra Pandey" },
-            { name: "Pramod Pandey" }
+            {
+              name: "Nagendra Pandey"
+            },
+            {
+              name: "Pramod Pandey"
+            }
           ]
         },
         { name: "Kameshwar Pandey" },
@@ -46,157 +52,52 @@ const family = {
   ]
 };
 
-const treeEl = document.getElementById("tree");
-const svg = document.getElementById("connections");
+// Setup tree layout
+const width = window.innerWidth;
+const height = window.innerHeight;
+const svg = d3.select("#tree")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .append("g")
+  .attr("transform", "translate(50,50)");
 
-// Default avatars
-const maleAvatar = "assets/male.svg";
-const femaleAvatar = "assets/female.svg";
+const root = d3.hierarchy(treeData);
+const treeLayout = d3.tree().size([width - 200, height - 200]);
+treeLayout(root);
 
-// Detect gender from name
-function getDefaultAvatar(name) {
-  const lower = name.toLowerCase();
-  if (lower.includes("kumari") || lower.endsWith("a") || lower.endsWith("i") || lower.endsWith("e")) {
-    return femaleAvatar;
-  }
-  return maleAvatar;
-}
+// Links (father to child)
+svg.selectAll(".link")
+  .data(root.links())
+  .enter()
+  .append("path")
+  .attr("class", "link")
+  .attr("d", d3.linkVertical()
+    .x(d => d.x)
+    .y(d => d.y)
+  );
 
-// Build tree recursively
-function createMember(member, parentEl) {
-  const memberEl = document.createElement("div");
-  memberEl.classList.add("member");
+// Nodes
+const node = svg.selectAll(".node")
+  .data(root.descendants())
+  .enter()
+  .append("g")
+  .attr("class", "node")
+  .attr("transform", d => `translate(${d.x},${d.y})`);
 
-  const circle = document.createElement("div");
-  circle.classList.add("circle");
+node.append("circle")
+  .attr("r", 35)
+  .attr("fill", "white")
+  .attr("stroke", "#333")
+  .attr("stroke-width", 2);
 
-  const img = document.createElement("img");
-  img.src = getDefaultAvatar(member.name);
-  circle.appendChild(img);
+node.append("image")
+  .attr("xlink:href", "assets/male.png")
+  .attr("x", -30)
+  .attr("y", -30)
+  .attr("width", 60)
+  .attr("height", 60);
 
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.style.display = "none";
-
-  circle.addEventListener("click", () => input.click());
-  input.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  const label = document.createElement("div");
-  label.classList.add("member-name");
-  label.textContent = member.name;
-
-  memberEl.appendChild(circle);
-  memberEl.appendChild(input);
-  memberEl.appendChild(label);
-
-  parentEl.appendChild(memberEl);
-
-  if (member.children && member.children.length > 0) {
-    const genEl = document.createElement("div");
-    genEl.classList.add("generation");
-    memberEl.appendChild(genEl);
-
-    member.children.forEach((child) => {
-      createMember(child, genEl);
-    });
-  }
-}
-
-createMember(family, treeEl);
-
-// Resize dynamically if too many siblings
-function resizeCircles() {
-  const gens = document.querySelectorAll(".generation");
-  gens.forEach((gen) => {
-    const members = gen.querySelectorAll(":scope > .member > .circle");
-    if (members.length > 0) {
-      const containerWidth = gen.getBoundingClientRect().width;
-      const maxPerRow = members.length;
-      let circleSize = Math.min(120, (containerWidth - 40) / maxPerRow - 20);
-      circleSize = Math.max(60, circleSize);
-
-      members.forEach((circle) => {
-        circle.style.width = circleSize + "px";
-        circle.style.height = circleSize + "px";
-      });
-    }
-  });
-}
-
-// Draw lines (parent → children + sibling connectors)
-function drawLines() {
-  svg.innerHTML = "";
-  const members = document.querySelectorAll(".member");
-
-  members.forEach((member) => {
-    const parentCircle = member.querySelector(":scope > .circle");
-    const gen = member.querySelector(":scope > .generation");
-    if (gen) {
-      const children = Array.from(gen.querySelectorAll(":scope > .member > .circle"));
-      if (children.length > 0) {
-        const parentRect = parentCircle.getBoundingClientRect();
-        const svgRect = svg.getBoundingClientRect();
-        const px = parentRect.left + parentRect.width / 2 - svgRect.left;
-        const py = parentRect.bottom - svgRect.top;
-
-        const childRects = children.map(c => c.getBoundingClientRect());
-        const cx = childRects.map(r => r.left + r.width / 2 - svgRect.left);
-        const cy = childRects.map(r => r.top - svgRect.top);
-
-        const minX = Math.min(...cx);
-        const maxX = Math.max(...cx);
-        const midY = Math.min(...cy) - 20;
-
-        // Horizontal sibling line
-        const hline = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        hline.setAttribute("x1", minX);
-        hline.setAttribute("y1", midY);
-        hline.setAttribute("x2", maxX);
-        hline.setAttribute("y2", midY);
-        hline.setAttribute("stroke", "#9ca3af");
-        hline.setAttribute("stroke-width", "2");
-        svg.appendChild(hline);
-
-        // Parent to sibling line
-        const vline = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        vline.setAttribute("x1", px);
-        vline.setAttribute("y1", py);
-        vline.setAttribute("x2", px);
-        vline.setAttribute("y2", midY);
-        vline.setAttribute("stroke", "#9ca3af");
-        vline.setAttribute("stroke-width", "2");
-        svg.appendChild(vline);
-
-        // Each child vertical line
-        cx.forEach((x, i) => {
-          const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
-          v.setAttribute("x1", x);
-          v.setAttribute("y1", midY);
-          v.setAttribute("x2", x);
-          v.setAttribute("y2", cy[i]);
-          v.setAttribute("stroke", "#9ca3af");
-          v.setAttribute("stroke-width", "2");
-          svg.appendChild(v);
-        });
-      }
-    }
-  });
-}
-
-function refresh() {
-  resizeCircles();
-  drawLines();
-}
-
-window.addEventListener("load", refresh);
-window.addEventListener("resize", refresh);
+node.append("text")
+  .attr("dy", 45)
+  .text(d => d.data.name);
