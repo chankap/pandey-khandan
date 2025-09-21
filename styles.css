@@ -1,0 +1,64 @@
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f4f7fc;
+  margin: 0;
+}
+
+.family-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.member {
+  text-align: center;
+}
+
+.circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #a3c9f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+span {
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+}
+
+input[type="file"] {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  opacity: 0;
+}
+
+input[type="file"]:hover {
+  cursor: pointer;
+}
+
+.children {
+  display: flex;
+  justify-content: space-around;
+  gap: 30px;
+  width: 100%;
+  margin-top: 40px;
+}
