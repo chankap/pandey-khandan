@@ -54,6 +54,7 @@ const minFont = 10;
 const maxFont = 14;
 const paddingY = 20;           // general padding below each node
 const parentChildPadding = 40; // extra vertical spacing between father and children
+const generationSpacing = 50;
 
 // --- Create SVG with zoom/pan ---
 const svgRoot = d3.select("#tree")
@@ -98,7 +99,7 @@ function getNameLines(node) {
 // --- Dynamic vertical spacing based on name lines + extra padding for parent ---
 function getNodeSpacing(node) {
   const extra = node.children && node.children.length > 0 ? parentChildPadding : 0;
-  return getNodeRadius(node) + getNameLines(node) * getFontSize(node) + paddingY + extra;
+  return getNodeRadius(node) + getNameLines(node) * getFontSize(node) + paddingY + extra + generationSpacing;
 }
 
 // --- Recursively adjust y positions based on vertical spacing ---
