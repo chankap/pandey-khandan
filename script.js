@@ -78,7 +78,7 @@ treeLayout(root);
 const rootX = root.x;
 const rootY = root.y;
 const initialOffsetX = width / 2 - rootX;
-const initialOffsetY = 100; // below heading
+const initialOffsetY = 100;
 svg.attr("transform", `translate(${initialOffsetX}, ${initialOffsetY})`);
 
 // --- Draw sibling/father lines ---
@@ -129,7 +129,7 @@ function drawLinks() {
   });
 }
 
-// --- Dynamic node radius and font size ---
+// --- Node radius and font scaling ---
 function getNodeRadius(node) {
   const siblings = node.parent ? node.parent.children.length : 1;
   let radius = maxRadius;
@@ -167,19 +167,48 @@ node.append("circle")
   .attr("stroke", "#333")
   .attr("stroke-width", 2);
 
-node.append("image")
-  .attr("xlink:href", d => {
-    const name = d.data.name.toLowerCase();
-    if (name.includes("kumari") || name.endsWith("a") || name.endsWith("i") || name.endsWith("e")) {
-      return "assets/female.svg";
-    }
-    return "assets/male.svg";
-  })
-  .attr("x", d => -getNodeRadius(d))
-  .attr("y", d => -getNodeRadius(d))
-  .attr("width", d => getNodeRadius(d) * 2)
-  .attr("height", d => getNodeRadius(d) * 2);
+// --- Draw CSS-based avatar inside circle ---
+node.each(function(d) {
+  const radius = getNodeRadius(d);
+  const isFemale = d.data.name.toLowerCase().includes("kumari") || d.data.name.toLowerCase().endsWith("a");
+  const g = d3.select(this);
 
+  // Head
+  g.append("circle")
+    .attr("cx", 0)
+    .attr("cy", -radius / 2)
+    .attr("r", radius / 3)
+    .attr("fill", isFemale ? "pink" : "lightblue")
+    .attr("stroke", "#333")
+    .attr("stroke-width", 1.5);
+
+  // Body
+  if (isFemale) {
+    // Triangle for female body
+    const points = [
+      [0, -radius / 6],
+      [-radius / 2, radius / 2],
+      [radius / 2, radius / 2]
+    ].map(p => p.join(",")).join(" ");
+    g.append("polygon")
+      .attr("points", points)
+      .attr("fill", "pink")
+      .attr("stroke", "#333")
+      .attr("stroke-width", 1);
+  } else {
+    // Rectangle for male body
+    g.append("rect")
+      .attr("x", -radius / 3)
+      .attr("y", -radius / 6)
+      .attr("width", (radius / 3) * 2)
+      .attr("height", radius * 0.8)
+      .attr("fill", "lightblue")
+      .attr("stroke", "#333")
+      .attr("stroke-width", 1);
+  }
+});
+
+// Name below circle
 node.append("text")
   .attr("dy", d => getNodeRadius(d) + 10)
   .style("font-size", d => getFontSize(d) + "px")
