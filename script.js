@@ -52,9 +52,9 @@ const treeData = {
   ]
 };
 
-// Setup tree layout
 const width = window.innerWidth;
 const height = window.innerHeight;
+
 const svg = d3.select("#tree")
   .append("svg")
   .attr("width", width)
@@ -63,11 +63,13 @@ const svg = d3.select("#tree")
   .attr("transform", "translate(50,50)");
 
 const root = d3.hierarchy(treeData);
-const treeLayout = d3.tree().size([width - 200, height - 200]);
+
+// tree layout with gaps
+const treeLayout = d3.tree().nodeSize([120, 150]);
 treeLayout(root);
 
-// Links (father to child)
-svg.selectAll(".link")
+// Links (with sibling connectors)
+const links = svg.selectAll(".link")
   .data(root.links())
   .enter()
   .append("path")
@@ -83,7 +85,12 @@ const node = svg.selectAll(".node")
   .enter()
   .append("g")
   .attr("class", "node")
-  .attr("transform", d => `translate(${d.x},${d.y})`);
+  .attr("transform", d => `translate(${d.x},${d.y})`)
+  .call(d3.drag()
+    .on("start", dragStarted)
+    .on("drag", dragged)
+    .on("end", dragEnded)
+  );
 
 node.append("circle")
   .attr("r", 35)
@@ -101,3 +108,25 @@ node.append("image")
 node.append("text")
   .attr("dy", 45)
   .text(d => d.data.name);
+
+// --- Drag functions ---
+function dragStarted(event, d) {
+  d3.select(this).raise().classed("active", true);
+}
+
+function dragged(event, d) {
+  d.x = event.x;
+  d.y = event.y;
+  d3.select(this).attr("transform", `translate(${d.x},${d.y})`);
+
+  // update links
+  svg.selectAll(".link")
+    .attr("d", d3.linkVertical()
+      .x(d => d.x)
+      .y(d => d.y)
+    );
+}
+
+function dragEnded(event, d) {
+  d3.select(this).classed("active", false);
+}
