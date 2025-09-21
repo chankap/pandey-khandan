@@ -52,6 +52,7 @@ const minRadius = 25;
 const maxRadius = 35;
 const minFont = 10;
 const maxFont = 14;
+const paddingY = 20; // extra vertical spacing
 
 // --- Create SVG with zoom/pan ---
 const svgRoot = d3.select("#tree")
@@ -69,14 +70,58 @@ svgRoot.call(d3.zoom()
   })
 );
 
-// --- Layout the tree ---
+// --- Node radius and font scaling ---
+function getNodeRadius(node) {
+  const siblings = node.parent ? node.parent.children.length : 1;
+  let radius = maxRadius;
+  if (siblings > 4) {
+    radius = Math.max(minRadius, maxRadius - (siblings - 4) * 2);
+  }
+  return radius;
+}
+
+function getFontSize(node) {
+  const siblings = node.parent ? node.parent.children.length : 1;
+  let font = maxFont;
+  if (siblings > 4) {
+    font = Math.max(minFont, maxFont - (siblings - 4));
+  }
+  return font;
+}
+
+// --- Compute name line count ---
+function getNameLines(node) {
+  return node.data.name.split(" ").length;
+}
+
+// --- Dynamic vertical spacing based on name lines ---
+function getNodeSpacing(node) {
+  return getNodeRadius(node) + getNameLines(node) * getFontSize(node) + paddingY;
+}
+
+// --- Recursively adjust y positions based on vertical spacing ---
+function adjustNodeY(node, startY = 0) {
+  node.y = startY;
+  if (node.children && node.children.length > 0) {
+    let currentY = startY + getNodeSpacing(node);
+    node.children.forEach(child => {
+      adjustNodeY(child, currentY);
+    });
+  }
+}
+
+// --- Initialize tree layout ---
 const root = d3.hierarchy(treeData);
-const treeLayout = d3.tree().nodeSize([120, 150]);
+
+// Set x spacing arbitrarily
+const treeLayout = d3.tree().nodeSize([120, 100]);
 treeLayout(root);
+
+// Apply dynamic vertical spacing
+adjustNodeY(root, 0);
 
 // --- Center root horizontally ---
 const rootX = root.x;
-const rootY = root.y;
 const initialOffsetX = width / 2 - rootX;
 const initialOffsetY = 100;
 svg.attr("transform", `translate(${initialOffsetX}, ${initialOffsetY})`);
@@ -129,25 +174,6 @@ function drawLinks() {
   });
 }
 
-// --- Node radius and font scaling ---
-function getNodeRadius(node) {
-  const siblings = node.parent ? node.parent.children.length : 1;
-  let radius = maxRadius;
-  if (siblings > 4) {
-    radius = Math.max(minRadius, maxRadius - (siblings - 4) * 2);
-  }
-  return radius;
-}
-
-function getFontSize(node) {
-  const siblings = node.parent ? node.parent.children.length : 1;
-  let font = maxFont;
-  if (siblings > 4) {
-    font = Math.max(minFont, maxFont - (siblings - 4));
-  }
-  return font;
-}
-
 // --- Nodes ---
 const node = svg.selectAll(".node")
   .data(root.descendants())
@@ -167,7 +193,7 @@ node.append("circle")
   .attr("stroke", "#333")
   .attr("stroke-width", 2);
 
-// --- Draw CSS-based avatar inside circle ---
+// --- CSS avatars ---
 node.each(function(d) {
   const radius = getNodeRadius(d);
   const isFemale = d.data.name.toLowerCase().includes("kumari") || d.data.name.toLowerCase().endsWith("a");
@@ -184,7 +210,6 @@ node.each(function(d) {
 
   // Body
   if (isFemale) {
-    // Triangle for female body
     const points = [
       [0, -radius / 6],
       [-radius / 2, radius / 2],
@@ -196,7 +221,6 @@ node.each(function(d) {
       .attr("stroke", "#333")
       .attr("stroke-width", 1);
   } else {
-    // Rectangle for male body
     g.append("rect")
       .attr("x", -radius / 3)
       .attr("y", -radius / 6)
@@ -208,13 +232,24 @@ node.each(function(d) {
   }
 });
 
-// Name below circle
+// --- Name with word-wrap ---
 node.append("text")
-  .attr("dy", d => getNodeRadius(d) + 10)
+  .attr("y", d => getNodeRadius(d) + 10)
+  .attr("text-anchor", "middle")
   .style("font-size", d => getFontSize(d) + "px")
-  .text(d => d.data.name);
+  .each(function(d) {
+    const g = d3.select(this);
+    const words = d.data.name.split(" ");
+    const lineHeight = getFontSize(d) + 2;
+    words.forEach((word, i) => {
+      g.append("tspan")
+        .attr("x", 0)
+        .attr("dy", i === 0 ? 0 : lineHeight)
+        .text(word);
+    });
+  });
 
-// --- Drag functions ---
+// --- Drag ---
 function dragStarted(event, d) {
   d3.select(this).raise().classed("active", true);
 }
