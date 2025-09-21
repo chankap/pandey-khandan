@@ -59,8 +59,7 @@ const svgRoot = d3.select("#tree")
   .attr("width", width)
   .attr("height", height);
 
-const svg = svgRoot.append("g")
-  .attr("transform", "translate(50,50)");
+const svg = svgRoot.append("g");
 
 // Zoom behavior
 svgRoot.call(d3.zoom()
@@ -70,11 +69,19 @@ svgRoot.call(d3.zoom()
   })
 );
 
+// --- Layout the tree ---
 const root = d3.hierarchy(treeData);
 const treeLayout = d3.tree().nodeSize([120, 150]);
 treeLayout(root);
 
-// --- Draw sibling connectors ---
+// --- Center root horizontally ---
+const rootX = root.x;
+const rootY = root.y;
+const initialOffsetX = width / 2 - rootX;
+const initialOffsetY = 100; // below heading
+svg.attr("transform", `translate(${initialOffsetX}, ${initialOffsetY})`);
+
+// --- Draw sibling/father lines ---
 function drawLinks() {
   svg.selectAll(".link").remove();
 
@@ -122,7 +129,7 @@ function drawLinks() {
   });
 }
 
-// --- Node radius and font scaling ---
+// --- Dynamic node radius and font size ---
 function getNodeRadius(node) {
   const siblings = node.parent ? node.parent.children.length : 1;
   let radius = maxRadius;
