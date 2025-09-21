@@ -99,7 +99,7 @@ node.append("circle")
   .attr("stroke-width", 2);
 
 node.append("image")
-  .attr("xlink:href", "assets/male.png")
+  .attr("xlink:href", "assets/male.svg")
   .attr("x", -30)
   .attr("y", -30)
   .attr("width", 60)
