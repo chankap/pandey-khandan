@@ -7,9 +7,7 @@ const treeData = {
         {
           name: "Balkeshwar Pandey",
           children: [
-            {
-              name: "Vijay Kumar Pandey"
-            },
+            { name: "Vijay Kumar Pandey" },
             {
               name: "Nand Kumar Pandey",
               children: [
@@ -36,12 +34,8 @@ const treeData = {
                 }
               ]
             },
-            {
-              name: "Nagendra Pandey"
-            },
-            {
-              name: "Pramod Pandey"
-            }
+            { name: "Nagendra Pandey" },
+            { name: "Pramod Pandey" }
           ]
         },
         { name: "Kameshwar Pandey" },
@@ -63,13 +57,11 @@ const svg = d3.select("#tree")
   .attr("transform", "translate(50,50)");
 
 const root = d3.hierarchy(treeData);
-
-// tree layout with gaps
 const treeLayout = d3.tree().nodeSize([120, 150]);
 treeLayout(root);
 
-// Links (with sibling connectors)
-const links = svg.selectAll(".link")
+// Links (father → siblings → children)
+svg.selectAll(".link")
   .data(root.links())
   .enter()
   .append("path")
@@ -92,19 +84,28 @@ const node = svg.selectAll(".node")
     .on("end", dragEnded)
   );
 
+// Circle
 node.append("circle")
   .attr("r", 35)
   .attr("fill", "white")
   .attr("stroke", "#333")
   .attr("stroke-width", 2);
 
+// Image inside circle (male/female based on name)
 node.append("image")
-  .attr("xlink:href", "assets/male.svg")
+  .attr("xlink:href", d => {
+    const name = d.data.name.toLowerCase();
+    if (name.includes("kumari") || name.endsWith("a") || name.endsWith("i") || name.endsWith("e")) {
+      return "assets/female.svg";
+    }
+    return "assets/male.svg";
+  })
   .attr("x", -30)
   .attr("y", -30)
   .attr("width", 60)
   .attr("height", 60);
 
+// Name below circle
 node.append("text")
   .attr("dy", 45)
   .text(d => d.data.name);
@@ -118,8 +119,7 @@ function dragged(event, d) {
   d.x = event.x;
   d.y = event.y;
   d3.select(this).attr("transform", `translate(${d.x},${d.y})`);
-
-  // update links
+  // Update all links dynamically
   svg.selectAll(".link")
     .attr("d", d3.linkVertical()
       .x(d => d.x)
