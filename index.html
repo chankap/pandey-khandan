@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Tree</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="family-tree">
+    <!-- Parag Pandey -->
+    <div class="member" id="parag">
+      <input type="file" id="paragPic" accept="image/*" onchange="updateImage('parag')">
+      <div class="circle">
+        <span id="paragName">Parag Pandey</span>
+      </div>
+    </div>
+
+    <!-- Harihar Pandey -->
+    <div class="member" id="harihar">
+      <input type="file" id="hariharPic" accept="image/*" onchange="updateImage('harihar')">
+      <div class="circle">
+        <span id="hariharName">Harihar Pandey</span>
+      </div>
+    </div>
+
+    <!-- Sons of Harihar Pandey -->
+    <div class="children">
+      <!-- Balkeshwar Pandey -->
+      <div class="member" id="balkeshwar">
+        <input type="file" id="balkeshwarPic" accept="image/*" onchange="updateImage('balkeshwar')">
+        <div class="circle">
+          <span id="balkeshwarName">Balkeshwar Pandey</span>
+        </div>
+      </div>
+
+      <!-- Kameshwar Pandey -->
+      <div class="member" id="kameshwar">
+        <input type="file" id="kameshwarPic" accept="image/*" onchange="updateImage('kameshwar')">
+        <div class="circle">
+          <span id="kameshwarName">Kameshwar Pandey</span>
+        </div>
+      </div>
+
+      <!-- Ramchandar Pandey -->
+      <div class="member" id="ramchandar">
+        <input type="file" id="ramchandarPic" accept="image/*" onchange="updateImage('ramchandar')">
+        <div class="circle">
+          <span id="ramchandarName">Ramchandar Pandey</span>
+        </div>
+      </div>
+
+      <!-- Deepnarayan Pandey -->
+      <div class="member" id="deepnarayan">
+        <input type="file" id="deepnarayanPic" accept="image/*" onchange="updateImage('deepnarayan')">
+        <div class="circle">
+          <span id="deepnarayanName">Deepnarayan Pandey</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sons of Balkeshwar Pandey -->
+    <div class="children">
+      <div class="member" id="vijay">
+        <input type="file" id="vijayPic" accept="image/*" onchange="updateImage('vijay')">
+        <div class="circle">
+          <span id="vijayName">Vijay Kumar Pandey</span>
+        </div>
+      </div>
+
+      <div class="member" id="nand">
+        <input type="file" id="nandPic" accept="image/*" onchange="updateImage('nand')">
+        <div class="circle">
+          <span id="nandName">Nand Kumar Pandey</span>
+        </div>
+      </div>
+
+      <div class="member" id="nagendra">
+        <input type="file" id="nagendraPic" accept="image/*" onchange="updateImage('nagendra')">
+        <div class="circle">
+          <span id="nagendraName">Nagendra Pandey</span>
+        </div>
+      </div>
+
+      <div class="member" id="pramod">
+        <input type="file" id="pramodPic" accept="image/*" onchange="updateImage('pramod')">
+        <div class="circle">
+          <span id="pramodName">Pramod Pandey</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sons of Nand Kumar Pandey -->
+    <div class="children">
+      <div class="member" id="arun">
+        <input type="file" id="arunPic" accept="image/*" onchange="updateImage('arun')">
+        <div class="circle">
+          <span id="arunName">Arun Kumar Pandey</span>
+        </div>
+      </div>
+
+      <div class="member" id="uday">
+        <input type="file" id="udayPic" accept="image/*" onchange="updateImage('uday')">
+        <div class="circle">
+          <span id="udayName">Uday Kumar Pandey</span>
+        </div>
+      </div>
+
+      <div class="member" id="dhananjay">
+        <input type="file" id="dhananjayPic" accept="image/*" onchange="updateImage('dhananjay')">
+        <div class="circle">
+          <span id="dhananjayName">Dhananjay Kumar Pandey</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sons of Arun Kumar Pandey -->
+    <div class="children">
+      <div class="member" id="himanshu">
+        <input type="file" id="himanshuPic" accept="image/*" onchange="updateImage('himanshu')">
+        <div class="circle">
+          <span id="himanshuName">Himanshu Gaurav</span>
+        </div>
+      </div>
+
+      <div class="member" id="kumar">
+        <input type="file" id="kumarPic" accept="image/*" onchange="updateImage('kumar')">
+        <div class="circle">
+          <span id="kumarName">Kumar Sudhanshu</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sons and Daughter of Uday Kumar Pandey -->
+    <div class="children">
+      <div class="member" id="nityam">
+        <input type="file" id="nityamPic" accept="image/*" onchange="updateImage('nityam')">
+        <div class="circle">
+          <span id="nityamName">Nityam Kumar</span>
+        </div>
+      </div>
+
+      <div class="member" id="sanjana">
+        <input type="file" id="sanjanaPic" accept="image/*" onchange="updateImage('sanjana')">
+        <div class="circle">
+          <span id="sanjanaName">Sanjana Kumari</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sons and Daughter of Dhananjay Kumar Pandey -->
+    <div class="children">
+      <div class="member" id="harshit">
+        <input type="file" id="harshitPic" accept="image/*" onchange="updateImage('harshit')">
+        <div class="circle">
+          <span id="harshitName">Harshit Kumar Pandey</span>
+        </div>
+      </div>
+
+      <div class="member" id="suhani">
+        <input type="file" id="suhaniPic" accept="image/*" onchange="updateImage('suhani')">
+        <div class="circle">
+          <span id="suhaniName">Suhani Kumari</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
